@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Build check
+        run: python -m py_compile app.py
+
+      - name: Test
+        run: pytest -v
+
+      - name: Check secret safely
+        run: |
+          if [ -z "$APP_SECRET" ]; then
+            echo "Secret is missing"
+            exit 1
+          else
+            echo "Secret is configured securely"
+          fi
